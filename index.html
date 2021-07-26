@@ -1,0 +1,398 @@
+<!-- 
+  * Based on the Broughlike tutorial: https://nluqo.github.io/broughlike-tutorial/
+  * Assets: kenney.nl: https://www.kenney.nl/assets/micro-roguelike
+  * Sounds:
+    * 8-bitmusicandsfx (coin)
+
+todo:
+- stairs up/down (store location)
+- items?
+- tweak monster generation
+- floor layouts
+- puzzles?
+- purpose?
+-->
+<html>
+
+<head>
+  <script src="game.js"></script>
+  <script src="map.js"></script>
+  <script src="tile.js"></script>
+  <script src="monster.js"></script>
+  <script src="util.js"></script>
+  <script src="spell.js"></script>
+
+  <style>
+    * {
+      padding: 0px;
+      margin: 0px;
+    }
+
+    body {
+      background: #121313;
+      overflow: hidden;
+    }
+
+    html,
+    body {
+      margin: 0px;
+      padding: 0px;
+      height: 100%;
+    }
+
+    canvas {
+      background: #222323;
+      border: 4px solid #333;
+      border-radius: 25px;
+      z-index: 99;
+      /* background: #472D3C; */
+    }
+
+    #main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      /* margin: 50px auto;
+      width: 832px;
+      height: 576px; */
+    }
+
+
+    /* https://codepen.io/Mamboleoo/pen/BxMQYQ */
+    .background span {
+      width: 20vmin;
+      height: 20vmin;
+      border-radius: 20vmin;
+      backface-visibility: hidden;
+      position: absolute;
+      animation-name: move;
+      animation-duration: 6s;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    .background span:nth-child(1) {
+      color: #e45a84;
+      top: 53%;
+      left: 21%;
+      animation-duration: 11.1s;
+      animation-delay: -6.9s;
+      transform-origin: 8vw 15vh;
+      box-shadow: -40vmin 0 11495496615vmin currentColor;
+    }
+
+    .background span:nth-child(2) {
+      color: #ffacac;
+      top: 61%;
+      left: 77%;
+      animation-duration: 14.1s;
+      animation-delay: -10.4s;
+      transform-origin: -19vw 6vh;
+      box-shadow: -40vmin 0 12689363445vmin currentColor;
+    }
+
+    .background span:nth-child(3) {
+      color: #e45a84;
+      top: 13%;
+      left: 30%;
+      animation-duration: 12.8s;
+      animation-delay: -15.8s;
+      transform-origin: 11vw 0vh;
+      box-shadow: -40vmin 0 1223164895vmin currentColor;
+    }
+
+    .background span:nth-child(4) {
+      color: #e45a84;
+      top: 62%;
+      left: 12%;
+      animation-duration: 10.6s;
+      animation-delay: -4.2s;
+      transform-origin: 6vw -14vh;
+      box-shadow: -40vmin 0 12171403845vmin currentColor;
+    }
+
+    .background span:nth-child(5) {
+      color: #ffacac;
+      top: 56%;
+      left: 18%;
+      animation-duration: 11.9s;
+      animation-delay: -12s;
+      transform-origin: -14vw 16vh;
+      box-shadow: -40vmin 0 9028529415vmin currentColor;
+    }
+
+    .background span:nth-child(6) {
+      color: #583c87;
+      top: 27%;
+      left: 26%;
+      animation-duration: 14.7s;
+      animation-delay: -7.1s;
+      transform-origin: 8vw 9vh;
+      box-shadow: -40vmin 0 4058575335vmin currentColor;
+    }
+
+    .background span:nth-child(7) {
+      color: #e45a84;
+      top: 46%;
+      left: 14%;
+      animation-duration: 13.2s;
+      animation-delay: -2.9s;
+      transform-origin: -15vw -12vh;
+      box-shadow: -40vmin 0 9011722605vmin currentColor;
+    }
+
+    .background span:nth-child(8) {
+      color: #e45a84;
+      top: 25%;
+      left: 69%;
+      animation-duration: 14.9s;
+      animation-delay: -7.6s;
+      transform-origin: 13vw 14vh;
+      box-shadow: -40vmin 0 12485000595vmin currentColor;
+    }
+
+    .background span:nth-child(9) {
+      color: #ffacac;
+      top: 72%;
+      left: 77%;
+      animation-duration: 12.1s;
+      animation-delay: -14.5s;
+      transform-origin: -18vw 23vh;
+      box-shadow: -40vmin 0 4875717925vmin currentColor;
+    }
+
+    .background span:nth-child(10) {
+      color: #ffacac;
+      top: 67%;
+      left: 23%;
+      animation-duration: 10.6s;
+      animation-delay: -8.3s;
+      transform-origin: 13vw -10vh;
+      box-shadow: -40vmin 0 16200263555vmin currentColor;
+    }
+
+    .background span:nth-child(11) {
+      color: #ffacac;
+      top: 4%;
+      left: 5%;
+      animation-duration: 11.9s;
+      animation-delay: -6.3s;
+      transform-origin: 12vw 7vh;
+      box-shadow: -40vmin 0 14946164945vmin currentColor;
+    }
+
+    .background span:nth-child(12) {
+      color: #e45a84;
+      top: 2%;
+      left: 65%;
+      animation-duration: 10.5s;
+      animation-delay: -6.2s;
+      transform-origin: 12vw 0vh;
+      box-shadow: -40vmin 0 18008186955vmin currentColor;
+    }
+
+    .background span:nth-child(13) {
+      color: #583c87;
+      top: 68%;
+      left: 54%;
+      animation-duration: 15.5s;
+      animation-delay: -5.4s;
+      transform-origin: -7vw 6vh;
+      box-shadow: -40vmin 0 7048985465vmin currentColor;
+    }
+
+    .background span:nth-child(14) {
+      color: #ffacac;
+      top: 55%;
+      left: 50%;
+      animation-duration: 15s;
+      animation-delay: -7.2s;
+      transform-origin: 13vw -23vh;
+      box-shadow: -40vmin 0 20100644645vmin currentColor;
+    }
+
+    .background span:nth-child(15) {
+      color: #ffacac;
+      top: 51%;
+      left: 85%;
+      animation-duration: 12.5s;
+      animation-delay: -4.2s;
+      transform-origin: -7vw -19vh;
+      box-shadow: -40vmin 0 705791025vmin currentColor;
+    }
+
+    .background span:nth-child(16) {
+      color: #e45a84;
+      top: 44%;
+      left: 49%;
+      animation-duration: 15.3s;
+      animation-delay: -1.2s;
+      transform-origin: 14vw 12vh;
+      box-shadow: -40vmin 0 13799780425vmin currentColor;
+    }
+
+    .background span:nth-child(17) {
+      color: #ffacac;
+      top: 78%;
+      left: 56%;
+      animation-duration: 12.6s;
+      animation-delay: -5.6s;
+      transform-origin: 18vw -5vh;
+      box-shadow: -40vmin 0 10445964745vmin currentColor;
+    }
+
+    .background span:nth-child(18) {
+      color: #e45a84;
+      top: 52%;
+      left: 78%;
+      animation-duration: 11.6s;
+      animation-delay: -1.7s;
+      transform-origin: -14vw 14vh;
+      box-shadow: -40vmin 0 15394854305vmin currentColor;
+    }
+
+    .background span:nth-child(19) {
+      color: #583c87;
+      top: 61%;
+      left: 58%;
+      animation-duration: 10.1s;
+      animation-delay: -15.7s;
+      transform-origin: 14vw 8vh;
+      box-shadow: -40vmin 0 10540762865vmin currentColor;
+    }
+
+    .background span:nth-child(20) {
+      color: #ffacac;
+      top: 76%;
+      left: 7%;
+      animation-duration: 15.3s;
+      animation-delay: -3.8s;
+      transform-origin: -5vw 13vh;
+      box-shadow: -40vmin 0 2634505565vmin currentColor;
+    }
+
+    @keyframes move {
+      100% {
+        transform: translate3d(0, 0, 1px) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="background">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+  <div id="main">
+    <canvas></canvas>
+  </div>
+</body>
+<script>
+  // canvas.width = tileSize * (numTiles + uiWidth);
+  // canvas.height = tileSize * numTiles;
+  const STATES = {
+    'loading': 0,
+    'running': 1,
+    'dead': 2,
+    'dialogue': 3,
+    'title': 4,
+    'win': 5,
+  }
+  tileSize = 32;//64;
+  numTiles = 18;//9;
+  uiWidth = 8;
+  level = 1;
+  upLevel = 6;
+  numLevels = 6;
+  maxHP = 6;
+  startingHP = 100;//3;
+
+  shakeAmount = 0;
+  shakeX = 0;
+  shakeY = 0;
+
+  spritesheet = new Image();
+  spritesheet.src = "kenney-microroguelike/Tilemap/colored_tilemap_packed.png"
+  spritesheet.onload = showTitle;
+  // spritesheet.src = 'colored_transparent_packed.png';
+
+  gameState = STATES.loading;
+
+  let MOVE_KEYS = {
+    'left': ["a", "h"],
+    'right': ["d", "l"],
+    "up": ["w", "k"],
+    "down": ["s", "j"],
+
+    "upleft": ["y"],
+    "upright": ["u"],
+    "downleft": ["b"],
+    "downright": ["n"],
+  };
+
+  document.querySelector("html").onkeypress = function (e) {
+    if (gameState == STATES.title)
+      startGame();
+    else if (gameState == STATES.dead)
+      showTitle();
+    else if (gameState == STATES.dialogue) {
+      gameState = STATES.running;
+      player.dialogue = undefined;
+      player.dialogueTitle = undefined;
+    } else if (gameState == STATES.win)
+      startGame();
+    else if (gameState == STATES.running) {
+      if (MOVE_KEYS.up.indexOf(e.key) >= 0) player.tryMove(0, -1);
+      if (MOVE_KEYS.down.indexOf(e.key) >= 0) player.tryMove(0, 1);
+      if (MOVE_KEYS.left.indexOf(e.key) >= 0) player.tryMove(-1, 0);
+      if (MOVE_KEYS.right.indexOf(e.key) >= 0) player.tryMove(1, 0);
+
+      // diags
+      if (MOVE_KEYS.upright.indexOf(e.key) >= 0) player.tryMove(1, -1);
+      if (MOVE_KEYS.upleft.indexOf(e.key) >= 0) player.tryMove(-1, -1);
+      if (MOVE_KEYS.downleft.indexOf(e.key) >= 0) player.tryMove(-1, 1);
+      if (MOVE_KEYS.downright.indexOf(e.key) >= 0) player.tryMove(1, 1);
+
+      // unsurprisingly, wait
+      if (e.key == ".") player.wait();
+
+      // spells
+      if (e.key >= 1 && e.key <= 9)
+        player.castSpell(e.key - 1);
+
+      // DEBUG
+      if (e.key == "F") {
+        gameState = STATES.dialogue;
+        showDialogue("TEST", "I am a test");
+      }
+      if (e.key == "E")
+        player.hp = player.maxHP;
+    }
+  };
+
+  setInterval(draw, 15);
+  setupCanvas();
+  initSounds();
+</script>
+
+</html>
